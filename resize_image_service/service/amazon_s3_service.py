@@ -1,18 +1,27 @@
-from resize_image_service.utils.enums.file_type import CONTENT_TYPE, FileType
+from __future__ import annotations
+
+from resize_image_service.service.storage_service import StorageService
+from resize_image_service.utils.enums.file_type import FileType
+from resize_image_service.utils.file_handler import FILE_HANDLER
 
 import boto3
 from PIL import Image
 
 import io
-from typing import Any, Dict
+from typing import Any
 
 
-class S3Service:
+class AmazonS3Service(StorageService):
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
         self.__validate_config(**kwargs)
 
         self.bucket_name = kwargs.get("bucket_name")
         self.region_name = kwargs.get("region_name")
+
+        self.expires_in = kwargs.get("expires_in")
+
         self.s3 = boto3.client(
             "s3",
             aws_access_key_id=kwargs.get("aws_access_key_id"),
@@ -24,69 +33,47 @@ class S3Service:
         self, file_name, file_type: FileType
     ) -> dict[str, str | Any]:
         return {
-            "presigned_url": self._get_presigned_right_url(file_name, file_type),
+            "presigned_url": self._get_presigned_write_url(file_name, file_type),
             "file_key": self._get_object_url(file_name),
         }
 
     def get_temp_read_link(self, file_name) -> dict[str, str | Any]:
         return {"presigned_url": self._get_presigned_read_url(file_name)}
 
-    def process_image(self, file_name) -> None:
-        img = self._get_image_obj(file_name)
+    def process_file(self, file_name: str, file_type: FileType) -> None:
+        file_bytes = self._get_file_obj(file_name)
+        handler = FILE_HANDLER[file_type]["handler"]
 
-        img = self._resize_img(img)
-        img = self._remove_img_metadata(img)
+        self._upload_file(file_name, handler(file_bytes))
 
-        self._upload_image(file_name, img)
-
-    def _get_object_url(self, file_name: str):
+    def _get_object_url(self, file_name: str) -> str:
         return f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{file_name}"
 
-    def _get_presigned_right_url(self, file_name, file_type: FileType):
+    def _get_presigned_write_url(self, file_name, file_type: FileType) -> str:
         return self.s3.generate_presigned_url(
             "put_object",
             Params={
                 "Bucket": self.bucket_name,
                 "Key": file_name,
-                "ContentType": CONTENT_TYPE[file_type],
+                "ContentType": FILE_HANDLER[file_type]["content_type"],
             },
-            ExpiresIn=3600,
+            ExpiresIn=self.expires_in,
         )
 
-    def _get_presigned_read_url(self, file_name):
+    def _get_presigned_read_url(self, file_name) -> str:
         return self.s3.generate_presigned_url(
             "get_object",
             Params={"Bucket": self.bucket_name, "Key": file_name},
-            ExpiresIn=3600,
+            ExpiresIn=self.expires_in,
         )
 
-    def _get_image_obj(self, file_name: str):
-        object_byte = io.BytesIO(
+    def _get_file_obj(self, file_name: str) -> io.BytesIO:
+        return io.BytesIO(
             self.s3.get_object(Bucket=self.bucket_name, Key=file_name)["Body"].read()
         )
 
-        return Image.open(object_byte)
-
-    def _upload_image(self, file_name: str, img: Image):
-        new_byte_img = io.BytesIO()
-        img.save(new_byte_img, format="PNG")
-
-        new_byte_img.seek(0)
-        self.s3.upload_fileobj(new_byte_img, Bucket=self.bucket_name, Key=file_name)
-
-    @staticmethod
-    def _resize_img(img):
-        img.thumbnail((320, 320))
-
-        return img
-
-    @staticmethod
-    def _remove_img_metadata(img):
-        data = list(img.getdata())
-        image_without_exif = Image.new(img.mode, img.size)
-        image_without_exif.putdata(data)
-
-        return image_without_exif
+    def _upload_file(self, file_name: str, file_bytes: io.BytesIO) -> None:
+        self.s3.upload_fileobj(file_bytes, Bucket=self.bucket_name, Key=file_name)
 
     @staticmethod
     def __validate_config(**kwargs):
