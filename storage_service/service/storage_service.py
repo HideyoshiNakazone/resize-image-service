@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resize_image_service.utils.enums.file_type import FileType
+from storage_service.utils.enums.file_type import FileType
 
 from abc import ABC, abstractmethod
 from typing import Any
@@ -21,5 +21,5 @@ class StorageService(ABC):
         pass
 
     @abstractmethod
-    def process_file(self, file_name) -> None:
+    def process_file(self, file_name: str, file_type: FileType) -> None:
         pass

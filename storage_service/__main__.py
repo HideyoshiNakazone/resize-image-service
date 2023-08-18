@@ -1,5 +1,5 @@
-from resize_image_service.config.config_server import get_config_server
-from resize_image_service.controller import app
+from storage_service.config.config_server import get_config_server
+from storage_service.controller import app
 
 import uvicorn
 

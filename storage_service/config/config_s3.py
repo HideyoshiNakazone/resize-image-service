@@ -1,4 +1,4 @@
-from resize_image_service.utils.enums.storage_type import StorageType
+from storage_service.utils.enums.storage_type import StorageType
 
 from dotenv import load_dotenv
 

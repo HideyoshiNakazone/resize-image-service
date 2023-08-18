@@ -1,5 +1,5 @@
-from resize_image_service.utils.enums.file_type import FileType
-from resize_image_service.utils.file_handler.handlers.image_handler import (
+from storage_service.utils.enums.file_type import FileType
+from storage_service.utils.file_handler.handlers.image_handler import (
     image_handler,
 )
 

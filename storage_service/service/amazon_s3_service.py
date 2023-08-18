@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from resize_image_service.service.storage_service import StorageService
-from resize_image_service.utils.enums.file_type import FileType
-from resize_image_service.utils.file_handler import FILE_HANDLER
+from storage_service.service.storage_service import StorageService
+from storage_service.utils.enums.file_type import FileType
+from storage_service.utils.file_handler import FILE_HANDLER
 
 import boto3
 from PIL import Image
@@ -40,7 +40,7 @@ class AmazonS3Service(StorageService):
     def get_temp_read_link(self, file_name) -> dict[str, str | Any]:
         return {"presigned_url": self._get_presigned_read_url(file_name)}
 
-    def process_file(self, file_name: str, file_type: FileType) -> None:
+    def process_file(self, file_name: str, file_type: FileType = FileType.PNG) -> None:
         file_bytes = self._get_file_obj(file_name)
         handler = FILE_HANDLER[file_type]["handler"]
 
