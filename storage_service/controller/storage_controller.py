@@ -20,14 +20,16 @@ s3_router = InferringRouter()
 @cbv(s3_router)
 class StorageController:
     queue: Queue = Depends(dependency_queue, use_cache=True)
-    storage_service: StorageService = Depends(dependency_storage_service, use_cache=True)
+    storage_service: StorageService = Depends(
+        dependency_storage_service, use_cache=True
+    )
 
     @s3_router.post("/new_file_url/", status_code=200)
     def new_file_url(
-            self,
-            username: Annotated[str, Body(embed=True)],
-            file_postfix: Annotated[str, Body(embed=True)],
-            file_type: Annotated[FileType, Body(embed=True)],
+        self,
+        username: Annotated[str, Body(embed=True)],
+        file_postfix: Annotated[str, Body(embed=True)],
+        file_type: Annotated[FileType, Body(embed=True)],
     ) -> dict[str, str]:
         return self.storage_service.get_temp_upload_link(
             file_name_hash(username, file_postfix), file_type
@@ -40,7 +42,9 @@ class StorageController:
         )
 
     @s3_router.post("/process_file/", status_code=200)
-    def process_file(self,
-                     username: Annotated[str, Body(embed=True)],
-                     file_postfix: Annotated[str, Body(embed=True)]):
+    def process_file(
+        self,
+        username: Annotated[str, Body(embed=True)],
+        file_postfix: Annotated[str, Body(embed=True)],
+    ):
         self.queue.enqueue(storage_file_worker, username, file_postfix)

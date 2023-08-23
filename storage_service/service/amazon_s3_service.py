@@ -5,7 +5,6 @@ from storage_service.utils.enums.file_type import FileType
 from storage_service.utils.file_handler import FILE_HANDLER
 
 import boto3
-from PIL import Image
 
 import io
 from typing import Any
