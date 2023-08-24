@@ -36,7 +36,7 @@ class AmazonS3Service(StorageService):
             "file_key": self._get_object_url(file_name),
         }
 
-    def get_temp_read_link(self, file_name) -> dict[str, str | Any]:
+    def get_temp_read_link(self, file_name) -> dict[str, str | None]:
         return {"presigned_url": self._get_presigned_read_url(file_name)}
 
     def process_file(self, file_name: str, file_type: FileType = FileType.PNG) -> None:
@@ -59,12 +59,16 @@ class AmazonS3Service(StorageService):
             ExpiresIn=self.expires_in,
         )
 
-    def _get_presigned_read_url(self, file_name) -> str:
-        return self.s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": self.bucket_name, "Key": file_name},
-            ExpiresIn=self.expires_in,
-        )
+    def _get_presigned_read_url(self, file_name) -> str | None:
+        result = self.s3.list_objects(Bucket=self.bucket_name, Prefix=file_name)
+
+        if file_name in map(lambda x: x["Key"], result["Contents"]):
+            return self.s3.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": self.bucket_name, "Key": file_name},
+                ExpiresIn=self.expires_in,
+            )
+        return None
 
     def _get_file_obj(self, file_name: str) -> io.BytesIO:
         return io.BytesIO(

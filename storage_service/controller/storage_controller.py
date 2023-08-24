@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from storage_service.depends.depend_queue import dependency_queue
 from storage_service.depends.depend_s3_service import (
     dependency_storage_service,
@@ -36,7 +38,7 @@ class StorageController:
         )
 
     @s3_router.get("/file_url/", status_code=200)
-    def file_url(self, username: str, file_postfix: str) -> dict[str, str]:
+    def file_url(self, username: str, file_postfix: str) -> dict[str, str | None]:
         return self.storage_service.get_temp_read_link(
             file_name_hash(username, file_postfix)
         )

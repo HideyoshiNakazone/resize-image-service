@@ -17,7 +17,7 @@ class StorageService(ABC):
         pass
 
     @abstractmethod
-    def get_temp_read_link(self, file_name) -> dict[str, str | Any]:
+    def get_temp_read_link(self, file_name) -> dict[str, str | None]:
         pass
 
     @abstractmethod
