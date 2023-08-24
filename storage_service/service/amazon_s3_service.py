@@ -29,7 +29,7 @@ class AmazonS3Service(StorageService):
         )
 
     def get_temp_upload_link(
-        self, file_name, file_type: FileType
+            self, file_name, file_type: FileType
     ) -> dict[str, str | Any]:
         return {
             "presigned_url": self._get_presigned_write_url(file_name, file_type),
@@ -62,7 +62,7 @@ class AmazonS3Service(StorageService):
     def _get_presigned_read_url(self, file_name) -> str | None:
         result = self.s3.list_objects(Bucket=self.bucket_name, Prefix=file_name)
 
-        if file_name in map(lambda x: x["Key"], result["Contents"]):
+        if "Contents" in result and file_name in map(lambda x: x["Key"], result["Contents"]):
             return self.s3.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": self.bucket_name, "Key": file_name},
