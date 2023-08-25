@@ -61,4 +61,4 @@ WORKDIR $PYSETUP_PATH
 EXPOSE 5000-9000
 
 # Run your app
-CMD [ "python", "-m", "storage_service" ]
+CMD [ "./run-queue.sh" ]
