@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 
 if [[ $1 == "--queue" || $1 == "-q" ]]; then
     rq worker --with-scheduler
