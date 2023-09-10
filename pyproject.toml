@@ -18,6 +18,7 @@ uvicorn = "^0.23.2"
 fastapi-utils = "^0.2.1"
 boto3 = "^1.28.21"
 python-multipart = "^0.0.6"
+virustotal-python = "^1.0.2"
 
 
 [tool.poetry.group.dev.dependencies]

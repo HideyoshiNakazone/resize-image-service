@@ -21,5 +21,9 @@ class StorageService(ABC):
         pass
 
     @abstractmethod
+    def delete_file(self, file_name: str) -> None:
+        pass
+
+    @abstractmethod
     def process_file(self, file_name: str, file_type: FileType) -> None:
         pass
