@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from storage_service.service.storage_service import StorageService
+from storage_service.depends.depend_virus_checker_service import dependency_virus_checker_service
+from storage_service.service.storage.storage_service import StorageService
 from storage_service.utils.enums.file_type import FileType
 from storage_service.utils.file_handler import FILE_HANDLER
 
@@ -11,6 +12,9 @@ from typing import Any
 
 
 class AmazonS3Service(StorageService):
+
+    virus_checker_service = dependency_virus_checker_service()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -39,8 +43,15 @@ class AmazonS3Service(StorageService):
     def get_temp_read_link(self, file_name) -> dict[str, str | None]:
         return {"presigned_url": self._get_presigned_read_url(file_name)}
 
+    def delete_file(self, file_name: str) -> None:
+        self._delete_file(file_name)
+
     def process_file(self, file_name: str, file_type: FileType = FileType.PNG) -> None:
         file_bytes = self._get_file_obj(file_name)
+
+        if not self.virus_checker_service.check_virus(file_bytes):
+            self._delete_file(file_name)
+
         handler = FILE_HANDLER[file_type]["handler"]
 
         self._upload_file(file_name, handler(file_bytes))
@@ -77,6 +88,9 @@ class AmazonS3Service(StorageService):
 
     def _upload_file(self, file_name: str, file_bytes: io.BytesIO) -> None:
         self.s3.upload_fileobj(file_bytes, Bucket=self.bucket_name, Key=file_name)
+
+    def _delete_file(self, file_name: str) -> None:
+        self.s3.delete_object(Bucket=self.bucket_name, Key=file_name)
 
     @staticmethod
     def __validate_config(**kwargs):
