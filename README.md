@@ -84,6 +84,14 @@ poetry run ./run-queue.sh --queue
 | `username`     | `string` | **Required**. Username of file owner |
 | `file_postfix` | `string` | **Required**. Type of desired file   |
 
+Returns:
+
+```json
+{
+    "presigned_url": string
+}
+```
+
 #### Get file write link
 
 ```http
@@ -95,6 +103,15 @@ poetry run ./run-queue.sh --queue
 | `username`     | `string` | **Required**. Username of file owner |
 | `file_postfix` | `string` | **Required**. Type of desired file   |
 | `file_type`    | `string` | **Required**. File format            |
+
+Returns:
+
+```json
+{
+    "presigned_url": string,
+    "file_key": string
+}
+```
 
 #### Delete file
 
