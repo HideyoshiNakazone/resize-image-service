@@ -1,5 +1,6 @@
 from storage_service.config.config_allowed_origins import get_allowed_origins
 from storage_service.controller.storage_controller import s3_router
+from storage_service.controller.health_checker_controller import health_router
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,3 +17,4 @@ app.add_middleware(
 )
 
 app.include_router(s3_router)
+app.include_router(health_router)
