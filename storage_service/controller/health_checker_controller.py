@@ -1,8 +1,8 @@
 from fastapi_utils.cbv import cbv
-
 from fastapi_utils.inferring_router import InferringRouter
 
 health_router = InferringRouter()
+
 
 @cbv(health_router)
 class HealthCheckerController:

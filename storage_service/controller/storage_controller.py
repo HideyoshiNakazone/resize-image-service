@@ -45,9 +45,7 @@ class StorageController:
 
     @s3_router.delete("/file/", status_code=204)
     def delete_file(self, username: str, file_postfix: str):
-        return self.storage_service.delete_file(
-            file_name_hash(username, file_postfix)
-        )
+        return self.storage_service.delete_file(file_name_hash(username, file_postfix))
 
     @s3_router.post("/file/process", status_code=200)
     def process_file(
@@ -56,5 +54,3 @@ class StorageController:
         file_postfix: Annotated[str, Body(embed=True)],
     ):
         self.queue.enqueue(storage_file_worker, username, file_postfix)
-
-
