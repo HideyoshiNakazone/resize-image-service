@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "storage_service"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.12"
 pillow = "^10.0.0"
 redis = "^4.6.0"
 requests = "^2.31.0"
