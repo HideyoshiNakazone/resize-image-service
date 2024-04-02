@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from storage_service.depends.depend_virus_checker_service import dependency_virus_checker_service
+from storage_service.depends.depend_virus_checker_service import (
+    dependency_virus_checker_service,
+)
 from storage_service.service.storage.storage_service import StorageService
 from storage_service.utils.enums.file_type import FileType
 from storage_service.utils.file_handler import FILE_HANDLER
@@ -12,7 +14,6 @@ from typing import Any
 
 
 class AmazonS3Service(StorageService):
-
     virus_checker_service = dependency_virus_checker_service()
 
     def __init__(self, **kwargs):
@@ -33,7 +34,7 @@ class AmazonS3Service(StorageService):
         )
 
     def get_temp_upload_link(
-            self, file_name, file_type: FileType
+        self, file_name, file_type: FileType
     ) -> dict[str, str | Any]:
         return {
             "presigned_url": self._get_presigned_write_url(file_name, file_type),
@@ -73,7 +74,9 @@ class AmazonS3Service(StorageService):
     def _get_presigned_read_url(self, file_name) -> str | None:
         result = self.s3.list_objects(Bucket=self.bucket_name, Prefix=file_name)
 
-        if "Contents" in result and file_name in map(lambda x: x["Key"], result["Contents"]):
+        if "Contents" in result and file_name in map(
+            lambda x: x["Key"], result["Contents"]
+        ):
             return self.s3.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": self.bucket_name, "Key": file_name},

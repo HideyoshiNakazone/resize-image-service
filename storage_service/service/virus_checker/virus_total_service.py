@@ -1,7 +1,10 @@
-from io import BytesIO
+from storage_service.service.virus_checker.virus_checker_service import (
+    VirusCheckerService,
+)
+
 from virustotal_python import Virustotal
 
-from storage_service.service.virus_checker.virus_checker_service import VirusCheckerService
+from io import BytesIO
 
 
 class VirusTotalService(VirusCheckerService):
@@ -26,10 +29,10 @@ class VirusTotalService(VirusCheckerService):
 
     @staticmethod
     def _is_valid_file(file_stats: dict) -> bool:
-        if 'malicious' in file_stats and file_stats['malicious'] > 0:
+        if "malicious" in file_stats and file_stats["malicious"] > 0:
             return False
 
-        if 'suspicious' in file_stats and file_stats['suspicious'] > 0:
+        if "suspicious" in file_stats and file_stats["suspicious"] > 0:
             return False
 
         return True

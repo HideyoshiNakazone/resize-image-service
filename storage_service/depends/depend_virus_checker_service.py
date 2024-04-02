@@ -1,13 +1,18 @@
-import os
-from functools import cache
-
-from storage_service.config.config_virus_checker import get_virus_checker_api_key
-from storage_service.service.virus_checker.virus_total_service import VirusTotalService
-from storage_service.service.virus_checker.virus_checker_service import VirusCheckerService
+from storage_service.config.config_virus_checker import (
+    get_virus_checker_api_key,
+)
+from storage_service.service.virus_checker.virus_checker_service import (
+    VirusCheckerService,
+)
+from storage_service.service.virus_checker.virus_total_service import (
+    VirusTotalService,
+)
+from storage_service.utils.enums.virus_checker_type import VirusCheckerType
 
 from dotenv import load_dotenv
 
-from storage_service.utils.enums.virus_checker_type import VirusCheckerType
+import os
+from functools import cache
 
 
 @cache
