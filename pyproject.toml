@@ -9,15 +9,15 @@ packages = [{include = "storage_service"}]
 [tool.poetry.dependencies]
 python = "^3.12"
 pillow = "^10.0.0"
-redis = "^4.6.0"
+redis = "^5.0.3"
 requests = "^2.31.0"
 rq = "^1.15.1"
 python-dotenv = "^1.0.0"
-fastapi = "^0.101.0"
-uvicorn = "^0.23.2"
+fastapi = "^0.110.1"
+uvicorn = "^0.29.0"
 fastapi-utils = "^0.2.1"
 boto3 = "^1.28.21"
-python-multipart = "^0.0.6"
+python-multipart = "^0.0.9"
 virustotal-python = "^1.0.2"
 
 
