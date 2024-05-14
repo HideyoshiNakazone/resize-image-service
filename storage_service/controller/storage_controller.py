@@ -9,14 +9,13 @@ from storage_service.utils.enums.file_type import FileType
 from storage_service.utils.file_name_hash import file_name_hash
 from storage_service.worker.storage_file_worker import storage_file_worker
 
-from fastapi import Body, Depends
+from fastapi import APIRouter, Body, Depends
 from fastapi_utils.cbv import cbv
-from fastapi_utils.inferring_router import InferringRouter
 from rq import Queue
 
 from typing import Annotated
 
-s3_router = InferringRouter()
+s3_router = APIRouter()
 
 
 @cbv(s3_router)

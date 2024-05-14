@@ -1,7 +1,7 @@
+from fastapi import APIRouter
 from fastapi_utils.cbv import cbv
-from fastapi_utils.inferring_router import InferringRouter
 
-health_router = InferringRouter()
+health_router = APIRouter()
 
 
 @cbv(health_router)
