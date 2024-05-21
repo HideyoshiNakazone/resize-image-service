@@ -5,11 +5,11 @@ from storage_service.model.health_check.health_check_response import (
 from fastapi import APIRouter
 from fastapi_utils.cbv import cbv
 
-health_router = APIRouter(tags=["health"])
+router = APIRouter(tags=["health"])
 
 
-@cbv(health_router)
+@cbv(router)
 class HealthCheckerController:
-    @health_router.get("/health", status_code=200)
+    @router.get("/health", status_code=200)
     def health(self) -> HealthCheckResponse:
         return HealthCheckResponse(status="healthy")
