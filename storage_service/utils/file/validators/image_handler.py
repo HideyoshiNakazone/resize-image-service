@@ -3,10 +3,10 @@ from PIL import Image
 import io
 
 
-def image_handler(file_bytes: io.BytesIO) -> io.BytesIO:
+def image_validator(file_bytes: io.BytesIO) -> io.BytesIO:
     img = Image.open(file_bytes)
 
-    img.thumbnail((320, 320))
+    img.thumbnail((180, 180))
 
     data = list(img.getdata())
     image_without_exif = Image.new(img.mode, img.size)

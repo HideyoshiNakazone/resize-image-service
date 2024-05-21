@@ -34,7 +34,7 @@ class VirusTotalService(VirusCheckerService):
     @staticmethod
     def _is_valid_file(file_stats: dict) -> bool:
         match file_stats:
-            case {"malicious": 0, "suspicious": 0, "undetected": 0, "harmless": 0}:
+            case {"malicious": 0, "suspicious": 0, "harmless": 0}:
                 return True
             case _:
                 return False

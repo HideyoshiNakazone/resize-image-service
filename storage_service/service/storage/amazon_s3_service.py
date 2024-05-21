@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from storage_service.depends.depend_virus_checker_service import (
     dependency_virus_checker_service,
 )
@@ -9,11 +11,13 @@ from storage_service.service.virus_checker.virus_checker_service import (
     VirusCheckerService,
 )
 from storage_service.utils.enums.file_type import FileType
-from storage_service.utils.file_handler import FILE_HANDLER
 
 from botocore.client import BaseClient
 
 import io
+
+
+logger = logging.getLogger(__name__)
 
 
 class AmazonS3Service(StorageService):
@@ -28,7 +32,7 @@ class AmazonS3Service(StorageService):
         self,
         s3_client: BaseClient,
         bucket_name: str,
-        virus_checker_service=dependency_virus_checker_service(),
+        virus_checker_service=None,
         **kwargs,
     ):
         self.virus_checker_service = virus_checker_service
@@ -40,6 +44,9 @@ class AmazonS3Service(StorageService):
         if bucket_name is None:
             raise RuntimeError("Invalid S3 Config: Missing bucket_name")
         self.bucket_name = bucket_name
+
+        if virus_checker_service is None:
+            self.virus_checker_service = dependency_virus_checker_service()
 
         if "expires_in" in kwargs:
             self.expires_in = kwargs["expires_in"]
@@ -59,15 +66,30 @@ class AmazonS3Service(StorageService):
     def delete_file(self, file_name: str) -> None:
         self._delete_file(file_name)
 
-    def process_file(self, file_name: str, file_type: FileType = FileType.PNG) -> None:
-        file_bytes = self._get_file_obj(file_name)
+    def process_file(self, file_name: str, file_type: FileType = FileType.PNG) -> dict:
+        try:
+            file_bytes = self._get_file_obj(file_name)
+        except Exception as _:
+            raise FileNotFoundError("File not found")
 
         if not self.virus_checker_service.check_virus(file_bytes):
-            self._delete_file(file_name)
+            raise ValueError("Virus Detected")
 
-        handler = FILE_HANDLER[file_type]["handler"]
+        try:
+            old_size = file_bytes.getbuffer().nbytes
 
-        self._upload_file(file_name, handler(file_bytes))
+            file_bytes = file_type.get_validator()(file_bytes)
+
+            new_size = file_bytes.getbuffer().nbytes
+        except Exception as _:
+            raise RuntimeError("Error Processing")
+
+        self._upload_file(file_name, file_bytes)
+
+        return {
+            "previous_size": old_size,
+            "current_size": new_size,
+        }
 
     def _get_presigned_write_url(self, file_name, file_type: FileType) -> str:
         return self.s3_client.generate_presigned_url(
@@ -75,7 +97,7 @@ class AmazonS3Service(StorageService):
             Params={
                 "Bucket": self.bucket_name,
                 "Key": file_name,
-                "ContentType": FILE_HANDLER[file_type]["content_type"],
+                "ContentType": file_type.get_content_type(),
             },
             ExpiresIn=self.expires_in,
         )
@@ -91,7 +113,8 @@ class AmazonS3Service(StorageService):
                 Params={"Bucket": self.bucket_name, "Key": file_name},
                 ExpiresIn=self.expires_in,
             )
-        return None
+
+        raise FileNotFoundError("File not found")
 
     def _get_file_obj(self, file_name: str) -> io.BytesIO:
         return io.BytesIO(
