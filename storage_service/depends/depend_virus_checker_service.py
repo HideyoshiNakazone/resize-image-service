@@ -10,6 +10,7 @@ from storage_service.service.virus_checker.virus_total_service import (
 from storage_service.utils.enums.virus_checker_type import VirusCheckerType
 
 from dotenv import load_dotenv
+from virustotal_python import Virustotal
 
 import os
 from functools import cache
@@ -19,13 +20,12 @@ from functools import cache
 def dependency_virus_checker_service() -> VirusCheckerService:
     load_dotenv()
 
-    virus_checker_config = get_virus_checker_api_key()
+    try:
+        type = VirusCheckerType(os.environ["VIRUS_CHECKER_TYPE"])
+    except ValueError:
+        raise RuntimeError("Invalid Virus Checker Type")
 
-    if not virus_checker_config["api_key"]:
-        raise RuntimeError("Virus Checker API Key not found")
-
-    virus_checker_type_var = os.environ.get("VIRUS_CHECKER_TYPE")
-    if VirusCheckerType(virus_checker_type_var) == VirusCheckerType.TOTAL_VIRUS:
-        return VirusTotalService(**get_virus_checker_api_key())
-
-    raise RuntimeError("Invalid Virus Checker Type")
+    match type:
+        case VirusCheckerType.TOTAL_VIRUS:
+            virus_checker = Virustotal(get_virus_checker_api_key())
+            return VirusTotalService(virus_checker)

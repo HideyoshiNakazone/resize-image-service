@@ -8,31 +8,33 @@ from io import BytesIO
 
 
 class VirusTotalService(VirusCheckerService):
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+    virus_checker: Virustotal
+
+    def __init__(self, virus_checker: Virustotal):
+        self.virus_checker = virus_checker
 
     def check_virus(self, file_data: BytesIO) -> bool:
+        file_id = self._upload_file(file_data)
+        file_attributes = self._get_analysis(file_id)
+
+        return self._is_valid_file(file_attributes)
+
+    def _upload_file(self, file_data: BytesIO) -> str:
         files = {"file": ("image_file", file_data)}
 
-        with Virustotal(self.api_key) as vtotal:
-            resp = vtotal.request("files", files=files, method="POST")
+        resp = self.virus_checker.request("files", files=files, method="POST")
 
-            file_attributes = self._get_analysis(resp.json()["data"]["id"])
-
-            return self._is_valid_file(file_attributes["data"]["attributes"]["stats"])
+        return resp.data["id"]
 
     def _get_analysis(self, file_id: str) -> dict:
-        with Virustotal(self.api_key) as vtotal:
-            resp = vtotal.request(f"analyses/{file_id}")
+        resp = self.virus_checker.request(f"analyses/{file_id}")
 
-            return resp.json()
+        return resp.json()["data"]["attributes"]["stats"]
 
     @staticmethod
     def _is_valid_file(file_stats: dict) -> bool:
-        if "malicious" in file_stats and file_stats["malicious"] > 0:
-            return False
-
-        if "suspicious" in file_stats and file_stats["suspicious"] > 0:
-            return False
-
-        return True
+        match file_stats:
+            case {"malicious": 0, "suspicious": 0, "undetected": 0, "harmless": 0}:
+                return True
+            case _:
+                return False

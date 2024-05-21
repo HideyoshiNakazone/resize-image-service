@@ -2,8 +2,8 @@ import base64
 from hashlib import md5
 
 
-def file_name_hash(username: str, file_postfix: str) -> str:
-    hashed_username = md5(username.encode("utf-8")).digest()
-    hashed_username = base64.b64encode(hashed_username).decode()
+def file_name_hash(file_key: str, file_postfix: str) -> str:
+    hashed_file_key = md5(file_key.encode("utf-8")).digest()
+    hashed_file_key = base64.b64encode(hashed_file_key).decode()
 
-    return f"{hashed_username}_{file_postfix}"
+    return f"{hashed_file_key}_{file_postfix}"
