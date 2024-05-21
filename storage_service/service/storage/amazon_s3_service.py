@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import logging
-
 from storage_service.depends.depend_virus_checker_service import (
     dependency_virus_checker_service,
 )
@@ -15,7 +13,7 @@ from storage_service.utils.enums.file_type import FileType
 from botocore.client import BaseClient
 
 import io
-
+import logging
 
 logger = logging.getLogger(__name__)
 

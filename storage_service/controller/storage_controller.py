@@ -10,7 +10,9 @@ from storage_service.model.storage.process_file_request import (
 )
 from storage_service.model.storage.signed_url_response import SignedUrlResponse
 from storage_service.service.storage.storage_service import StorageService
-from storage_service.utils.exceptions.file_not_found_exception import FileNotFoundException
+from storage_service.utils.exceptions.file_not_found_exception import (
+    FileNotFoundException,
+)
 from storage_service.utils.file.file_hash_generator import generate_file_hash
 from storage_service.worker.storage_file_worker import storage_file_worker
 
@@ -49,7 +51,9 @@ class StorageController:
 
     @s3_router.delete("/file", status_code=204)
     def delete_file(self, file_key: str, file_postfix: str):
-        return self.storage_service.delete_file(generate_file_hash(file_key, file_postfix))
+        return self.storage_service.delete_file(
+            generate_file_hash(file_key, file_postfix)
+        )
 
     @s3_router.post("/file/process", status_code=200)
     def process_file(self, process_file_request: ProcessFileRequest):

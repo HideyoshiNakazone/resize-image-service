@@ -1,8 +1,8 @@
+from storage_service.utils.file.validators import image_validator
+
 from enum import Enum
 from io import BytesIO
 from typing import Callable
-
-from storage_service.utils.file.validators import image_validator
 
 
 class FileType(Enum):
