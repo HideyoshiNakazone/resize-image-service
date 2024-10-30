@@ -11,6 +11,28 @@ import os
 from functools import cache
 
 
+def build_client_s3(config: dict) -> botocore.client.BaseClient:
+    if "aws_endpoint_url" not in config:
+        config["aws_endpoint_url"] = "https://s3.amazonaws.com"
+
+    if "aws_access_key_id" not in config:
+        raise RuntimeError("Invalid S3 Config: Missing aws_access_key_id")
+
+    if "aws_secret_access_key" not in config:
+        raise RuntimeError("Invalid S3 Config: Missing aws_secret_access_key")
+
+    if "region_name" not in config:
+        raise RuntimeError("Invalid S3 Config: Missing region_name")
+
+    return boto3.client(
+        "s3",
+        endpoint_url=config["aws_endpoint_url"],
+        region_name=config["region_name"],
+        aws_access_key_id=config["aws_access_key_id"],
+        aws_secret_access_key=config["aws_secret_access_key"],
+    )
+
+
 @cache
 def dependency_storage_service() -> StorageService:
     load_dotenv()
@@ -18,24 +40,8 @@ def dependency_storage_service() -> StorageService:
     if StorageType(os.environ["STORAGE_TYPE"]) == StorageType.S3_STORAGE:
         s3_config = get_config_s3()
 
-        if "aws_access_key_id" not in s3_config:
-            raise RuntimeError("Invalid S3 Config: Missing aws_access_key_id")
-
-        if "aws_secret_access_key" not in s3_config:
-            raise RuntimeError("Invalid S3 Config: Missing aws_secret_access_key")
-
-        if "region_name" not in s3_config:
-            raise RuntimeError("Invalid S3 Config: Missing region_name")
-
-        s3_client = boto3.client(
-            "s3",
-            region_name=s3_config["region_name"],
-            aws_access_key_id=s3_config["aws_access_key_id"],
-            aws_secret_access_key=s3_config["aws_secret_access_key"],
-        )
-
         return AmazonS3Service(
-            s3_client,
+            build_client_s3(s3_config),
             s3_config["bucket_name"],
         )
 
