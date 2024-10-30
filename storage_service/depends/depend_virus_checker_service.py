@@ -1,6 +1,9 @@
 from storage_service.config.config_virus_checker import (
     get_virus_checker_api_key,
 )
+from storage_service.service.virus_checker.virus_checker_none_service import (
+    VirusCheckerNoneService,
+)
 from storage_service.service.virus_checker.virus_checker_service import (
     VirusCheckerService,
 )
@@ -29,3 +32,5 @@ def dependency_virus_checker_service() -> VirusCheckerService:
         case VirusCheckerType.TOTAL_VIRUS:
             virus_checker = Virustotal(get_virus_checker_api_key())
             return VirusTotalService(virus_checker)
+        case VirusCheckerType.NONE:
+            return VirusCheckerNoneService()
